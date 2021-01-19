@@ -203,7 +203,7 @@ TypeOrmModule.forRoot({
     }),
 ```
 
-## CongigService
+## ConfigService
 
 : similar with dotenv
 
@@ -349,4 +349,51 @@ createRestaurant(
     }
   }
 ...
+```
+
+## Mapped types
+
+: merge dto to entity
+
+:what the hell was code first?
+
+```ts
+//restaurants.resolver.ts
+@Args('input') createRestaurantDto: CreateRestaurantDto, // for OmitType, go back to InputType
+...
+
+// create-restaurants.dto.ts
+@InputType() // to use OmitType, we need InputType
+export class CreateRestaurantDto extends OmitType(
+  Restaurant,
+  ['id'], // don't need to transfer id
+  InputType,
+) {} // if Parent and Child type is different, pass 3rd arg
+```
+
+or optionally
+
+```ts
+// restaurant.entity.ts
+@InputType({ isAbstract: true }) // can define more type with abstract, instead of passing 3rd arg of OmitType
+```
+
+And use validation at entity
+
+```ts
+// restaurant.entity.ts
+@Field(is => String)
+  @Column()
+  @IsString()
+  @Length(5, 10)
+  name: string;
+```
+
+## Add Default attribute to column
+
+```ts
+// restaurant.entity.ts
+@Field(type => Boolean, { nullable: true }) // for graphql, {nullable: don't send, defaultValue: send the default value}, but both are fine with default db column
+@Column({ default: true }) // for db
+@IsOptional() // for validator, if value is missing, ignore below validator
 ```
