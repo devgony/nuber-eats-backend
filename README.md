@@ -270,7 +270,7 @@ TypeOrmModule.forRoot({
 > ### Data Mapper: our choice here
 
 - For bigger project
-- Always interact with DB using repository
+- Always can interact with DB using repository
 - NestJS already has this way
 - Good for testing
 
@@ -396,4 +396,259 @@ And use validation at entity
 @Field(type => Boolean, { nullable: true }) // for graphql, {nullable: don't send, defaultValue: send the default value}, but both are fine with default db column
 @Column({ default: true }) // for db
 @IsOptional() // for validator, if value is missing, ignore below validator
+```
+
+## Recap
+
+restaurant.entity.ts => create-restaurant.dto => restaurants.service.ts => restaurants.resolver.ts => restaurants.module.ts
+
+## Update Restaurant
+
+```ts
+// touch src/restaurants/dtos/update-restaurant.dto.ts
+@InputType()
+// PartialType for optional args
+class UpdateRestaurantDtoInputType extends PartialType(
+  CreateRestaurantDto,
+) {}
+
+@ArgsType()
+export class UpdateRestaurantDto {
+  @Field(type => Number)
+  id: number;
+  @Field(type => UpdateRestaurantDtoInputType)
+  data: UpdateRestaurantDtoInputType;
+}
+
+// restaurants.resolver.ts
+@Mutation(returns => Boolean)
+  async updateRestaurant(
+    // use merged args with dto
+    @Args('input') updateRestaurantDto: UpdateRestaurantDto,
+  ): Promise<boolean> {
+    try {
+      await this.restaurantService.updateRestaurant(updateRestaurantDto);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+// restaurant.service.ts
+updateRestaurant({ id, data }: UpdateRestaurantDto) {
+    return this.restaurants.update(id, { ...data });
+  }
+```
+
+## Create user Model
+
+> ### User Model:
+
+- id
+- createdAt
+- updatedAt
+
+- email
+- password
+- role(client|owner|delivery)
+
+> ### User CRUD:
+
+- Create Account
+- Log In
+- See Profile
+- Edit Profile
+- Verify Email
+
+```ts
+nest g mo users
+
+// app.module.ts
+  // entities: [Restaurant],
+  // RestaurantsModule,
+  UsersModule,
+```
+
+## Create Mutaion
+
+```ts
+// touch src/users/dtos/create-account.dto.ts
+// PickType: pick specific properties
+@InputType()
+export class CreateAccountInput extends PickType(User, [
+  'email',
+  'password',
+  'role',
+]) {}
+
+@ObjectType()
+export class CreateAccountOuput {
+  @Field(type => String, { nullable: true })
+  error?: string;
+  @Field(type => String)
+  ok: boolean;
+}
+
+// src/users/users.resolver.ts
+@Mutation(returns => CreateAccountOuput)
+  createAccount(@Args('input') createAccountInput: CreateAccountInput) {}
+```
+
+### Define enum type
+
+```ts
+enum UserRole {
+  Client,
+  Owner,
+  Delivery,
+}
+
+registerEnumType(UserRole, { name: 'UserRole' }); // for graphql
+```
+
+### createAccount
+
+> ### 1. check user existance
+
+: error handling => return is better than throw (we handle the errors like GO)
+
+```ts
+mutation {
+  createAccount(input: {
+    email: "devgony@gmail.com",
+    password: "1234",
+		role: Owner
+  }) {
+    ok,
+    error
+  }
+}
+```
+
+: returning object can avoid redundant if clause
+
+```ts
+// /Users/henry/Node/nuber-eats-backend/src/users/users.service.ts
+return { ok: false, error: 'There is a user with that email already' };
+```
+
+> ### 2. create user
+
+> ### 3. hash password
+
+listener: like trigger on specific entity
+
+- @BeforeInsert()
+
+npm i bcrypt
+npm i @types/bcrypt --dev-only
+
+```ts
+// /Users/henry/Node/nuber-eats-backend/src/users/entities/user.entity.ts
+@BeforeInsert()
+  async hashPassword(): Promise<void> {
+    try {
+      this.password = await bcrypt.hash(this.password, 10);
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException(); // for the case of "Couldn't create account"
+    }
+  }
+```
+
+## Login User
+
+### 0. reuse and rename common dto
+
+move mutation
+
+```ts
+// from
+src/users/dtos/create-account.dto.ts CreateAccountOutput()
+// to
+src/common/dtos/output.dto.ts MutationOutput()
+```
+
+And create LoginOuput
+
+```ts
+// login.dto.ts
+@InputType()
+export class LoginInput extends PickType(User, ['email', 'password']) {}
+
+@ObjectType()
+export class LoginOuput extends MutationOutput {
+  // just to rename
+  @Field(type => String, { nullable: true })
+  token?: string;
+}
+```
+
+### 1. find user with email
+
+### 2. check if the pw is correct and return token
+
+- define checkPassword() at `src/users/entities/user.entity.ts` so that we can use whenever! calling by User.checkPassword
+
+```ts
+// src/users/entities/user.entity.ts
+async checkPassword(aPassword: string): Promise<boolean> {
+    try {
+      const ok = await bcrypt.compare(aPassword, this.password);
+      return ok;
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException();
+    }
+  }
+```
+
+### 3. make a JWT and give ti to user
+
+# #5 USER AUTHENTICATION
+
+- not use passport but do manually
+- learn how to create custom module.forRoot
+
+> ### dependency injection
+
+```ts
+npm i jsonwebtoken
+npm i @types/jsonwebtoken --only-dev
+
+// app.module.ts
+SECRET_KEY: Joi.string().required(),
+```
+
+> https://randomkeygen.com/
+
+```ts
+// users.module.ts
+imports: [TypeOrmModule.forFeature([User]), ConfigService], // import repository, SECRET_KEY
+
+// user.service.ts
+constructor(
+    @InjectRepository(User) private readonly users: Repository<User>,
+    private readonly config: ConfigService,
+  ) {}
+...
+const token = jwt.sign({ id: user.id }, this.config.get('SECRET_KET'));
+```
+
+## create jwt module
+
+> ### purpose of jwt
+
+- check if token is modified or not
+- not for encrypting secret
+- everybody can see, don't put password
+
+1. create dynamic module(with explicit config)
+2. apply config option
+3. convert to static module
+
+```
+nest g mo jwt
+nest g s jwt
 ```

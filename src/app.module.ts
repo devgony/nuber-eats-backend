@@ -6,6 +6,10 @@ import * as Joi from 'joi';
 import { join } from 'path';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
+import { User } from './users/entities/user.entity';
+import { JwtModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
@@ -20,6 +24,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
         DB_NAME: Joi.string().required(),
+        SECRET_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -31,14 +36,18 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod', // migrate current state to model
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [Restaurant],
+      // entities: [Restaurant],
+      entities: [User],
     }),
-    RestaurantsModule,
     GraphQLModule.forRoot({
       // cost first way - auto gen by typescript
       // autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // => create 'schema.sql' file
       autoSchemaFile: true, // => create schema in memory only
     }),
+    // RestaurantsModule,
+    JwtModule.forRoot(),
+    UsersModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
