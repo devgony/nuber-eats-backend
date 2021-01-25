@@ -648,7 +648,31 @@ const token = jwt.sign({ id: user.id }, this.config.get('SECRET_KET'));
 2. apply config option
 3. convert to static module
 
-```
+```ts
 nest g mo jwt
 nest g s jwt
+
+// jwt.module.ts
+@Module({
+  // providers: [JwtService]
+})
+@Global() // don't need to import manually
+export class JwtModule {
+  static forRoot(): DynamicModule {
+    // dynamic: a module returning another module
+    return {
+      module: JwtModule,
+      exports: [JwtService],
+      providers: [JwtService],
+    };
+  }
+}
+
+// app.module.ts
+    JwtModule.forRoot(),
+
+// users.module.ts
+// ConfigService, JwtService // we don't need to import global module => comment out
+
+
 ```

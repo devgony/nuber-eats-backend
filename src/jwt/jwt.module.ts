@@ -7,7 +7,7 @@ import { JwtService } from './jwt.service';
 @Global() // don't need to import manually
 export class JwtModule {
   static forRoot(): DynamicModule {
-    // a module returning another module
+    // dynamic: a module returning another module
     return {
       module: JwtModule,
       exports: [JwtService],
