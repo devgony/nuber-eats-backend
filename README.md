@@ -676,3 +676,61 @@ export class JwtModule {
 
 
 ```
+
+### interface => options
+
+```ts
+// touch src/jwt/jwt.interfaces.ts
+export interface JwtModuleOptions {
+  privateKey: string;
+}
+```
+
+### constants => CONFIG_OPTIONS
+
+```ts
+// touch src/jwt/jwt.constants.ts
+export const CONFIG_OPTIONS = 'CONFIG_OPTIONS';
+```
+
+`[JwtService]` = shortcut of `{provide: JwtService, useClass: JwtService}`
+
+```ts
+// src/jwt/jwt.module.ts
+static forRoot(options: JwtModuleOptions): DynamicModule {
+    return {
+      module: JwtModule,
+      providers: [
+        {
+          provide: CONFIG_OPTIONS,
+          useValue: options,
+        },
+        JwtService,
+      ],
+      exports: [JwtService],
+```
+
+```ts
+// src/jwt/jwt.service.ts
+constructor(
+    @Inject(CONFIG_OPTIONS) private readonly options: JwtModuleOptions, // we can inject whatever
+  ) {}
+  sign(userId: number): string {
+    return jwt.sign({ id: userId }, this.options.privateKey);
+  }
+
+// src/users/users.service.ts
+...
+    // private readonly config: ConfigService, // don't need anymore
+...
+      const token = this.jwtService.sign(user.id);
+```
+
+### Can use module and forRoot options like ConfigModule
+
+```ts
+// src/app.module.ts
+JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY,
+    }),
+```
