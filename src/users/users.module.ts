@@ -12,5 +12,6 @@ import { UsersService } from './users.service';
     //  ConfigService, JwtService // we don't need to import global module
   ], // import repository, SECRET_KEY
   providers: [UsersService, UsersResolver],
+  exports: [UsersService], // export to the world
 })
 export class UsersModule {}

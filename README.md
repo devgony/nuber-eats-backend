@@ -606,7 +606,7 @@ async checkPassword(aPassword: string): Promise<boolean> {
 
 ### 3. make a JWT and give ti to user
 
-# #5 USER AUTHENTICATION
+## 5 USER AUTHENTICATION
 
 - not use passport but do manually
 - learn how to create custom module.forRoot
@@ -735,4 +735,154 @@ JwtModule.forRoot({
     }),
 ```
 
-## need new
+## Middleware
+
+### To install middleware
+
+create middleware
+
+```ts
+// src/jwt/jwt.middleware.ts
+//// Class version
+export class JwtMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log(req.headers);
+    next();
+  }
+}
+//// function version
+export function jwtMiddleware(req: Request, res: Response, next: NextFunction) {
+  console.log(req.headers);
+  next();
+}
+```
+
+install middleware (to specific route)
+
+```ts
+// src/app.module.ts
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(jwtMiddleware).forRoutes({
+      path: '/graphql', // apply for all router: '*'
+      method: RequestMethod.POST, // RequestMethod.ALL
+    });
+  }
+}
+```
+
+or globally
+
+```ts
+// src/main.ts
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  // app.use(jwtMiddleware); // global install but works with funtional only
+  await app.listen(3000);
+}
+```
+
+> implement vs extents?
+
+## JWT Middleware
+
+- To inject UsersService (repository), use Class middleware and install at `app.module.ts` not `main.ts`
+- To inject UsersService, export it at `users.module.ts`
+
+```ts
+  exports: [UsersService], // export to the world
+```
+
+- Create verify function at `jwt.service.ts`
+
+```ts
+// jwt.service.ts
+verify(token: string) {
+    return jwt.verify(token, this.options.privateKey);
+  }
+```
+
+- Create findById at `users.service.ts`
+
+```ts
+async findById(id: number): Promise<User> {
+    return this.users.findOne({ id });
+  }
+```
+
+- Middleware to match proper jwt
+
+```ts
+@Injectable()
+export class JwtMiddleware implements NestMiddleware {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userService: UsersService,
+  ) {}
+  async use(req: Request, res: Response, next: NextFunction) {
+    if ('x-jwt' in req.headers) {
+      const token = req.headers['x-jwt'];
+      const decoded = this.jwtService.verify(token.toString());
+      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+        try {
+          const user = await this.userService.findById(decoded['id']);
+          console.log(user);
+          req['user'] = user;
+        } catch (e) {}
+      }
+    }
+    next();
+  }
+}
+```
+
+## GraphQL Context
+
+Anything you put in context will show up at all resolvers
+
+```ts
+//src/app.module.ts
+context: ({ req }) => ({ user: req['user'] }),
+
+//src/users/users.resolver.ts
+me(@Context() context) {
+    if (!context.user) {
+      return;
+    } else {
+      return context.user;
+    }
+  }
+```
+
+> ## gql playground polling setup
+
+`"schema.polling.enable": false,`
+
+## AuthGuard
+
+```
+nest g mo auth
+```
+
+CommonModule comment out?
+useguard globally? => later
+own decorator?
+
+```ts
+// src/auth/auth.guard.ts
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate(context: ExecutionContext) {
+    const gqlContext = GqlExecutionContext.create(context).getContext();
+    const user = gqlContext['user'];
+    if (!user) {
+      return false;
+    }
+    return true;
+  }
+}
+```
