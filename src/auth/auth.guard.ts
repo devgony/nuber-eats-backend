@@ -5,7 +5,7 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 export class AuthGuard implements CanActivate {
   // CanActivate: if it returns true, continue request else stop
   canActivate(context: ExecutionContext) {
-    const gqlContext = GqlExecutionContext.create(context).getContext();
+    const gqlContext = GqlExecutionContext.create(context).getContext(); // turn it from http to graphql context
     const user = gqlContext['user'];
     if (!user) {
       return false;

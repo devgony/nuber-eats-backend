@@ -861,28 +861,169 @@ me(@Context() context) {
 
 ## AuthGuard
 
+> ### CanActivate: if it returns true, continue request else stop
+
 ```
 nest g mo auth
 ```
 
 CommonModule comment out?
-useguard globally? => later
-own decorator?
+useguard up to each roles => later with metadata
 
 ```ts
 // src/auth/auth.guard.ts
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
-
 @Injectable()
 export class AuthGuard implements CanActivate {
+  // CanActivate: if it returns true, continue request else stop
   canActivate(context: ExecutionContext) {
     const gqlContext = GqlExecutionContext.create(context).getContext();
     const user = gqlContext['user'];
     if (!user) {
       return false;
     }
+    console.log(user);
     return true;
   }
 }
+```
+
+## AuthUser (own) decorator
+
+to get the required user
+
+```ts
+export const AuthUser = createParamDecorator(
+  (data: unknown, context: ExecutionContext) => {
+    const gqlContext = GqlExecutionContext.create(context).getContext();
+    const user = gqlContext['user'];
+    return user; // whatever it returns, it will be sent to authguard
+  },
+);
+```
+
+## Auth recap
+
+- Send token at header
+- Create middleware to use http
+- middleware take header and verify jwt
+- if there is id, find the user and attach to req
+- Send info to all resolver by Apollo context
+- User resolver has authguard to implement
+
+## User profile mutation
+
+what was the purpose of dto?
+
+1. better code experience
+2. type validator(real time)
+
+- Rename from MutationOutput to CoreOutput
+- create `UserProfileInput` and `UserProfileOutput`
+- CoreOutput => UserProfileOutput => users.resolver.ts (handle error)
+
+what was diff between InputType, ObjectType?
+
+- editProfile(EditProfileInput): EditProfileOutput {}
+- use inputDto and defactoring to avoid not null errror
+- pw hashing => @BeforeUpdate() but..
+- use save instead of update
+  - update or if entities don't exist, insert
+  - but.. what about inputDto?
+- need to fix when send email only
+
+## Verification
+
+### touch src/users/entities/verification.entity.ts
+
+- verification <> user is 1 : 1
+- select user from verification? => add `@JoinColumn()` to verification
+
+```ts
+// touch src/users/entities/verification.entity.ts
+  @OneToOne(type => User)
+  @JoinColumn()
+  user: User;
+```
+
+### add verification to entities at `src/app.module.ts`
+
+### add verified column to `src/users/entities/user.entity.ts`
+
+### import Verification at users.module.ts
+
+### Random verifing code
+
+Get simple and quick random code without installation
+
+```ts
+Math.random().toString(36).substring(2);
+```
+
+Otherwise, use "uuid"
+
+```ts
+// src/users/entities/verification.entity.ts
+@BeforeInsert()
+  createCode(): void {
+    this.code = uuidv4();
+  }
+```
+
+### inject repository to `src/users/users.service.ts`
+
+- create account => save user to verification
+- edit profile = > save user to verification
+
+```ts
+await this.verifications.save(this.verifications.create({ user }));
+```
+
+### verification is so small not enough to make new service => merge into user service
+
+### Verify!
+
+- findOne => default: no relation
+- { loadRelationIds: true } => get userID only
+- { relations: ['user'] } => get all columns of user
+
+### hash error handling
+
+1. just don't fetch as default {select: false} at `src/users/entities/user.entity.ts`
+2. hash only if password exists
+
+- To delete row on parent key => { onDelete: 'CASCADE' }) at `src/users/entities/verification.entity.ts`
+- if need, specify the column to fetch => { select: ['id', 'password'] }, at login of `src/users/entities/verification.entity.ts`
+
+### Cleaning
+
+- browser automatically await
+- Resolver just get inputDto and send to Service
+- Service do all the logics
+- GQL Resolver, function Resolver, Service wil have same output "Dto"
+
+- additional edit
+
+```ts
+// jwt.middleware.ts
+const { user } = await this.userService.findById(decoded['id']);
+```
+
+- need to be fixed => editProfile send duplicated userId
+
+## Verification
+
+### Delete verification
+
+### Sign in mailgun
+
+https://app.mailgun.com/
+
+### Optionally we can use nestJS-mailer
+
+https://nest-modules.github.io/mailer/docs/mailer.html
+
+### Create mail module manually
+
+```
+nest g mo mail
 ```

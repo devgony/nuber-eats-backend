@@ -6,7 +6,7 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
 import { IsEmail, IsEnum } from 'class-validator';
 
@@ -27,21 +27,27 @@ export class User extends CoreEntity {
   @Field(type => String)
   @IsEmail()
   email: string;
-  @Column()
+  @Column({ select: false }) // not to hash again
   @Field(type => String)
   password: string;
   @Column({ type: 'enum', enum: UserRole })
   @Field(type => UserRole)
   @IsEnum(UserRole)
   role: UserRole;
+  @Column({ default: false })
+  @Field(type => Boolean)
+  verified: boolean;
 
   @BeforeInsert()
+  @BeforeUpdate()
   async hashPassword(): Promise<void> {
-    try {
-      this.password = await bcrypt.hash(this.password, 10);
-    } catch (e) {
-      console.log(e);
-      throw new InternalServerErrorException(); // for the case of "Couldn't create account"
+    if (this.password) {
+      try {
+        this.password = await bcrypt.hash(this.password, 10);
+      } catch (e) {
+        console.log(e);
+        throw new InternalServerErrorException(); // for the case of "Couldn't create account"
+      }
     }
   }
 
