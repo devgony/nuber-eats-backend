@@ -1027,3 +1027,88 @@ https://nest-modules.github.io/mailer/docs/mailer.html
 ```
 nest g mo mail
 ```
+
+### GOT
+
+```ts
+npm i got
+Buffer.from('api:YOUR_API_KEY').toString('base64')
+> YXBpOllPVVJfQVBJX0tFWQ==
+npm i form-data
+
+// touch src/mail/mail.service.ts
+sendEmail(username, template, code, emailVars) => FormData() => got() => mailgun => my mail
+```
+
+## TEST
+
+```ts
+touch users.service.spec.ts
+npm run test:watch
+npm run test:cov
+```
+
+## Fix dir
+
+```ts
+"moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
+```
+
+### should be defined
+
+=> To do isolated 'unit test' do mock
+
+### createAccount
+
+1. whatever created account it is, if email already exists, get error
+2. mock repository with generics
+
+```ts
+type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+```
+
+### ignore coverage
+
+````ts
+// add to package.json
+"coveragePathIgnorePatterns": [
+      "node_modules",
+      ".entity.ts",
+      ".constants.ts"
+    ]
+    ```
+
+// remove from package.json
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+````
+
+### match returned value
+
+```ts
+expect(result).toMatchObject({
+  ok: false,
+  error: 'There is a user with that email already',
+});
+```
+
+### duplicated mockRepository
+
+=> change from object to function
+
+### expect times, args
+
+```ts
+expect().toHaveBeenCalledTimes(1);
+expect().toHaveBeenCalledWith(createAccountArgs);
+```
+
+### Verification
+
+```ts
+let verificationRepository: MockRepository<Verification>;
+verificationRepository = module.get(getRepositoryToken(Verification));
+```
