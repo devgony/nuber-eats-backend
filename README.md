@@ -1116,3 +1116,15 @@ verificationRepository = module.get(getRepositoryToken(Verification));
 ### mailService
 
 ### last result
+
+BeforAll => BeforEach
+
+BeforEach: unit test
+
+BeforeAll: e2e test
+
+### mock specific property of object
+
+```ts
+       checkPassword: jest.fn(() => Promise.resolve(true)),
+```

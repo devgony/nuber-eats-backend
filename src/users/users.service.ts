@@ -81,10 +81,10 @@ export class UsersService {
         ok: true,
         token,
       };
-    } catch (e) {
+    } catch (error) {
       return {
         ok: false,
-        error: e,
+        error: "Can't log user in!",
       };
     }
     // 3. make a JWT and give it to user
@@ -92,13 +92,11 @@ export class UsersService {
   async findById(id: number): Promise<UserProfileOutput> {
     // return this.users.findOne({ id });
     try {
-      const user = await this.users.findOne({ id });
-      if (user) {
-        return {
-          ok: true,
-          user,
-        };
-      }
+      const user = await this.users.findOneOrFail({ id }); // if can't find, throw error => can remove if condition
+      return {
+        ok: true,
+        user,
+      };
     } catch (error) {
       return { ok: false, error: 'User Not Found' };
     }
@@ -137,7 +135,6 @@ export class UsersService {
         // { loadRelationIds: true }, // fetch userId only eg) user: 5
         { relations: ['user'] }, // fetch all columns from user
       );
-      console.log(verification);
       if (verification) {
         verification.user.verified = true;
         await this.users.save(verification.user);
@@ -146,7 +143,7 @@ export class UsersService {
       }
       return { ok: false, error: 'Verification not found' };
     } catch (error) {
-      return { ok: false, error };
+      return { ok: false, error: 'Could not verify email' };
     }
   }
 }
