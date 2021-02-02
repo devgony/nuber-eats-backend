@@ -1128,3 +1128,40 @@ BeforeAll: e2e test
 ```ts
        checkPassword: jest.fn(() => Promise.resolve(true)),
 ```
+
+## JWT Service Test
+
+### How to mock external library
+
+should test out of dependency => mock package
+
+```ts
+// jwt.service.spec.ts
+const module = await Test.createTestingModule({
+  providers: [
+    JwtService,
+    {
+      provide: CONFIG_OPTIONS,
+      useValue: { privateKey: TEST_KEY },
+    },
+  ],
+}).compile();
+```
+
+## Mail Service Test
+
+### spyOn function
+
+Error: received value must be a mock or spy function
+
+=> To use(test) it later, do spy function not mock
+
+it runs both origin function and intercepted one by spy function
+
+```ts
+jest.spyOn(service, 'sendEmail').mockImplementation(async () => {});
+```
+
+package that doesn't use function 'got', 'form-data' => just mock the package not function and use spyOn
+
+## E2E Test
