@@ -1164,4 +1164,49 @@ jest.spyOn(service, 'sendEmail').mockImplementation(async () => {});
 
 package that doesn't use function 'got', 'form-data' => just mock the package not function and use spyOn
 
+### html unit cov page
+
+coverage/lcov-report/index.html
+
 ## E2E Test
+
+```ts
+// /Users/henry/Node/nuber-eats-backend/test/jest-e2e.json
+"moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/../src/$1"
+  },
+
+// cp .env.dev .env.test but ,
+DB_NAME=nuber-eats-test
+
+// app.module.ts
+validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
+...
+logging:
+        process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
+```
+
+- Create database nuber-eats-test
+- after all the test, drop DB and close test
+- set decent order of tests
+
+```ts
+// users.e2e-spec.ts
+const GRAPHQL_ENDPOINT = '/graphql';
+
+// package.json
+ "test:e2e": "jest --config ./test/jest-e2e.json --detectOpenHandles"
+//=> got the problem: got
+// rollback
+"test:e2e": "jest --config ./test/jest-e2e.json
+
+// add mock
+jest.mock('got', () => {
+  return {
+    post: jest.fn(),
+  };
+});
+```
+
+### toBe(Exactly match) Vs toEqual(any types)
