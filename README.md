@@ -1210,3 +1210,7 @@ jest.mock('got', () => {
 ```
 
 ### toBe(Exactly match) Vs toEqual(any types)
+
+### get token at the top (after login test)
+
+## user null from jwt.middleware.ts? => already fixed above
