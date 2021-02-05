@@ -250,6 +250,7 @@ describe('UserModule (e2e)', () => {
           expect(email).toBe(testUser.email);
         });
     });
+    it('should not allow logged out user');
   });
   it.todo('verifyEmail');
   it.todo('editProfile');
