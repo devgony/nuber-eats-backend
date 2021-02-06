@@ -1214,3 +1214,64 @@ jest.mock('got', () => {
 ### get token at the top (after login test)
 
 ## user null from jwt.middleware.ts? => already fixed above
+
+### users entity
+
+@Column({ unique: true })
+
+> # => challenge to handle unique error
+
+One to One verification problem => delete verification before edit
+
+Jest review
+
+```ts
+describe('parent', () => {
+  beforeAll()
+  describe('child', () => {
+    beforeAll()
+    it('should ~', () => {})
+  })
+}
+```
+
+## Restaurant
+
+### User entity add validation
+
+### modify restaurant.entity.ts
+
+- remove id, extends coreEntity
+- add
+  - name
+  - category
+    - one to many(target, inverse ref)
+  - address
+  - coverImage
+
+### init
+
+- add to entity again
+- delete test table
+
+### relationship
+
+- cascade
+
+Schema must contain uniquely named types but contains multiple types named "Category".
+
+- It has inputType and objectType => set the name
+
+`@InputType('CategoryInputType', { isAbstract: true })`
+
+### create restaurant gets the authUser
+
+### Slug? : for standard name
+
+### use category repository => import the module forRoot
+
+defects
+
+1. no secutiry
+
+- check owner role

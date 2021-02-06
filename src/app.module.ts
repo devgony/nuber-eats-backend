@@ -19,6 +19,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
+import { Category } from './restaurants/entities/category.entity';
 
 @Module({
   imports: [
@@ -50,7 +51,7 @@ import { MailModule } from './mail/mail.module';
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
       // entities: [Restaurant],
-      entities: [User, Verification],
+      entities: [User, Verification, Restaurant, Category],
     }),
     GraphQLModule.forRoot({
       // cost first way - auto gen by typescript
@@ -58,7 +59,7 @@ import { MailModule } from './mail/mail.module';
       autoSchemaFile: true, // => create schema in memory only
       context: ({ req }) => ({ user: req['user'] }),
     }),
-    // RestaurantsModule,
+    RestaurantsModule,
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
     }),

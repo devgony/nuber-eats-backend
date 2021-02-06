@@ -6,9 +6,10 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
-import { IsEmail, IsEnum } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsString } from 'class-validator';
+import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 
 enum UserRole {
   Client,
@@ -19,24 +20,33 @@ enum UserRole {
 registerEnumType(UserRole, { name: 'UserRole' }); // for graphql
 
 // type UserRole = 'client' | 'owner' | 'delivery';
-@InputType({ isAbstract: true }) // mapped type (pick)
+@InputType('UserInputType', { isAbstract: true }) // mapped type (pick)
 @ObjectType() // graphql
 @Entity() // typeORM
 export class User extends CoreEntity {
-  @Column()
+  @Column({ unique: true })
   @Field(type => String)
   @IsEmail()
   email: string;
+
   @Column({ select: false }) // not to hash again
   @Field(type => String)
+  @IsString()
   password: string;
+
   @Column({ type: 'enum', enum: UserRole })
   @Field(type => UserRole)
   @IsEnum(UserRole)
   role: UserRole;
+
   @Column({ default: false })
   @Field(type => Boolean)
+  @IsBoolean()
   verified: boolean;
+
+  @Field(type => [Restaurant])
+  @OneToMany(type => Restaurant, restaurant => restaurant.owner)
+  restaurants: Restaurant[];
 
   @BeforeInsert()
   @BeforeUpdate()
