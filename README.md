@@ -1258,7 +1258,7 @@ describe('parent', () => {
 
 - cascade
 
-Schema must contain uniquely named types but contains multiple types named "Category".
+Error: Schema must contain uniquely named types but contains multiple types named "Category".
 
 - It has inputType and objectType => set the name
 
@@ -1275,3 +1275,13 @@ defects
 1. no secutiry
 
 - check owner role
+
+### Role based auth
+
+### Set metadata
+
+### use guard every where
+
+auth.module.ts => import APP_GUARD
+
+role.decorator.ts (SetMetaData) => send metadata from each service => auth.guard.ts (undefined => true, Any => true, UserRole => ture)
