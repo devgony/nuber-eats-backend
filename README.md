@@ -1284,4 +1284,8 @@ defects
 
 auth.module.ts => import APP_GUARD
 
-role.decorator.ts (SetMetaData) => send metadata from each service => auth.guard.ts (undefined => true, Any => true, UserRole => ture)
+role.decorator.ts (SetMetaData)
+
+=> send metadata from each service
+
+=> auth.guard.ts get metadata by `reflector` (undefined => true, Any => true, UserRole => ture)
