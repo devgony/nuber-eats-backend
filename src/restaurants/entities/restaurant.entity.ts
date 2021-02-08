@@ -2,7 +2,7 @@ import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { Category } from './category.entity';
 
 @InputType('RestaurantInputType', { isAbstract: true }) // can define more type with abstract, instead of passing 3rd arg of OmitType
@@ -37,6 +37,9 @@ export class Restaurant extends CoreEntity {
     onDelete: 'CASCADE',
   })
   owner: User;
+
+  @RelationId((restaurant: Restaurant) => restaurant.owner)
+  ownerId: number;
 
   // @Field(type => Boolean, { nullable: true }) // for graphql, {nullable: don't send, defaultValue: send the default value}, but both are fine with default db column
   // @Column({ default: true }) // for db

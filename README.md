@@ -1289,3 +1289,39 @@ role.decorator.ts (SetMetaData)
 => send metadata from each service
 
 => auth.guard.ts get metadata by `reflector` (undefined => true, Any => true, UserRole => ture)
+
+### edit Restaurant#1
+
+- Edit Restaurant
+  - creata dto, resolver, service
+- Delete Restaurant
+
+- See Categories
+- See Restaurants by Category (pagination)
+- See Restaurants (pagination)
+- See Restaurant
+
+- Create Dish
+- Edit Dish
+- Delete Dish
+
+### defensive programming
+
+- start from the error condition first
+
+### To get owner ID
+
+- add restaurantId to EditRestaurantInput
+- use @RelationId at entity
+- merge to getOrCreateCategory at service
+- find restautant => if owner? => ok
+
+### Custom repository
+
+- `@EntityRepository`
+- inject repository at service intead of normal Repository<>
+- load repository at module instead of entity
+
+### If (!categoryName) {categories.getOrCreate}
+
+### restaurants.save() but category may be null => chain..?
