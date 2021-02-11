@@ -1325,3 +1325,87 @@ role.decorator.ts (SetMetaData)
 ### If (!categoryName) {categories.getOrCreate}
 
 ### restaurants.save() but category may be null => chain..?
+
+### Delete restaurant
+
+### Categories => too small, just create at restaurants
+
+### Return promise => browser itself will await for us
+
+### Compute field? (Dynamic field not in DB)
+
+```ts
+// r.r
+@ResolveField(type => Int)
+  restaurantCount(@Parent() category: Category): Promise<number> {
+    return this.restaurantService.countRestaurants(category);
+  }
+
+```
+
+### findCategoryBySlug
+
+### Pagenation with where, take, skip
+
+```ts
+const restaurants = await this.restaurants.find({
+  where: {
+    category,
+  },
+  take: 25,
+  skip: (page - 1) * 25,
+});
+```
+
+### - See Restaurant
+
+### + Search Restaurant + Raw SQL
+
+```ts
+// normal
+name: Like(`%${query}%`),
+
+// custom Raw query + Insensitive Like
+name: Raw(name => `${name} ILIKE '%${query}%'`),
+```
+
+### homework: make custom repository method for pagination
+
+## Dish
+
+- Create Dish
+- Edit Dish
+- Delete Dish
+
+- Orders CRUD
+- Orders Subscription (Owner, Customer, Delivery)
+
+- Payments (CRON)
+
+/Users/henry/Node/nuber-eats-backend/src/restaurants/entities/dish.entity.ts
+
+Many Dishes to one Restaurant
+
+One Restaurant to Many Dishes
+
+### Column type (dish option)
+
+- create fake column instead of saving in DB
+
+```ts
+  @Column({ type: 'json', nullable: true })
+```
+
+- todo: why restaurantId of Dish is nullable? or relationId is not working => ManyToOne's default nullable: false
+- price should be up to choices
+- create DishChoiceInputType to charge extra price for both of options.extra and choices.extra
+
+## Order Entity
+
+```ts
+nest g mo orders
+```
+
+- @JoinTable() // mandatory for manyToMany(Order <-> Dish) and should be only at one side(owner)
+
+- option Json => flexible data handling but it will be ruled by frontend later
