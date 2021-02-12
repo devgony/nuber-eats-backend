@@ -1409,3 +1409,78 @@ nest g mo orders
 - @JoinTable() // mandatory for manyToMany(Order <-> Dish) and should be only at one side(owner)
 
 - option Json => flexible data handling but it will be ruled by frontend later
+
+- but when we createOrder, user should send just string
+
+- we calculate and handle the strings at backend manually
+- return does not work inside of forEach so that ts doesn't help => use for~of loop
+- ManyToMany creates mapping table automatically
+
+## Get orders - read orders
+
+Owner, Customer, deliveryDriver want to see orders
+
+### flat(1)
+
+- get all elements to outside and flattern
+
+```ts
+[[1], [2], [], []] => [1, 2]
+```
+
+- Role base select
+  - Client => only see orders as a client
+  - DeliverMan => only see orders he has to deliver
+  - Owner => only see orders on restaurant he owns
+
+## Edit order
+
+- Owner => can change to only Cooking, Cooked
+- Delivery => can channge to only PickedUp, Delivered
+
+## Subscription for order
+
+- install package
+
+```
+npm install graphql-subscriptions
+```
+
+- create instance
+- install websocket handler
+
+```ts
+// app.module.ts
+      installSubscriptionHandlers: true,
+```
+
+- web socket does not send req => use `connection`
+- web socket need to verify token only when start connection (cf. http needs it whenever it sends)
+- craete subscription with
+
+```ts
+pubsub.asyncIterator('triggerName');
+```
+
+- publish with
+
+```ts
+pusub.publish('triggerName', 'payload with functionName: messageToSend');
+```
+
+1. delete jwt middleware
+
+- 3 step (jwt middleware => GraphQLModule.forRoot.context => guard) to 2 step (GraphQLModule.forRoot.context => guard)
+
+2. send token to guard at both cases (http, websocket)
+3. handle token at guard
+
+### define pubsub at common module not just order module
+
+- not only provide but also export from common.module.ts
+
+### Prod server with cluster => use RedisPubSub
+
+- (https://github.com/davidyaha/graphql-redis-subscriptions)
+
+### Subscription Filter

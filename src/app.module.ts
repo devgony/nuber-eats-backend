@@ -69,7 +69,13 @@ import { OrderItem } from './orders/entities/order-item.entity';
       // cost first way - auto gen by typescript
       // autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // => create 'schema.sql' file
       autoSchemaFile: true, // => create schema in memory only
-      context: ({ req }) => ({ user: req['user'] }),
+      installSubscriptionHandlers: true,
+      context: ({ req, connection }) => {
+        const TOKEN_KEY = 'x-jwt';
+        return {
+          token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY],
+        };
+      },
     }),
     RestaurantsModule,
     JwtModule.forRoot({
@@ -84,15 +90,18 @@ import { OrderItem } from './orders/entities/order-item.entity';
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
     OrdersModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes({
-      path: '/graphql', // apply for all router: '*'
-      method: RequestMethod.POST, // ALL, GET..
-    });
-  }
-}
+export class AppModule {}
+
+// implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(JwtMiddleware).forRoutes({
+//       path: '/graphql', // apply for all router: '*'
+//       method: RequestMethod.POST, // ALL, GET..
+//     });
+//   }
+// }
