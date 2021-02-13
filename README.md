@@ -1484,3 +1484,90 @@ pusub.publish('triggerName', 'payload with functionName: messageToSend');
 - (https://github.com/davidyaha/graphql-redis-subscriptions)
 
 ### Subscription Filter
+
+- send id, filter by id
+- resolve => transfrom data
+- pubSub works even without touching DB (eg. GPS info from delivery)
+
+```ts
+@Mutation(returns => Boolean)
+  async potatoReady(@Args('potatoId') potatoId: number) {
+    this.pubSub.publish('hotPotatos', {
+      readyPotato: potatoId,
+    }); // triggre name, payload of publish function name
+    return true;
+  }
+
+@Subscription(returns => String, {
+  filter: ({ readyPotato }, { potatoId }) => {
+    return readyPotato === potatoId;
+  },
+  // transfrom data
+  resolve: ({ readyPotato }) =>
+    `Your potato with the id ${readyPotato} is ready!!~!`,
+})
+@Role(['Any'])
+readyPotato(@Args('potatoId') potatoId: number) {
+  return this.pubSub.asyncIterator('hotPotatos');
+}
+```
+
+### How manay Subscription?
+
+- Pending Orders (Owner), (s: newOrder) (t:createOrder(newOrder))
+- Order Status (Customer, Delivery, Owner), (s: orderUpdate) (t: edidtOrder(orderUpdate))
+- Pending Pickup Order (Delivery), (s: orderUpdate) (t: editOrder(orderUpdate))
+
+### eager relations
+
+if you did not mention at relation => it does not load => return null => need eager relation
+
+- eager relation
+  - auto load all
+  - overload => need to handle `n+1` problem (infinite nested loop)
+- lazy relation
+  - if you want to load, call with promise manually
+
+### filter subscription with rename + type
+
+```ts
+      { orderUpdates: order }: { orderUpdates: Order },
+```
+
+### take order for DeliveryMan
+
+- the last resolver? no...
+
+## Payment
+
+- paddle
+  - every country in the world
+  - for sw or digital stuff
+    - online book, premium membership, api, video game
+
+### for physical
+
+- braintree
+- stripe
+  - doesn't work in korea
+  - need real company and back account
+
+### Payment Module
+
+```
+nest g mo payments
+```
+
+- OnetoMany needs ManyToOne at opposite side but if we care only ManyToOne, we can ignore opposite side
+
+- Just pick 'transactionId', 'restaurantId'
+
+### GetPayments
+
+- Option1. use me {}
+
+```ts
+  @OneToMany(type => Payment, payment => payment.user, { eager: true })
+```
+
+- Option2. new getPayments resolver (able to do pagination and filter later)
