@@ -50,6 +50,15 @@ export class Restaurant extends CoreEntity {
   @Field(type => [Order])
   @OneToMany(type => Order, order => order.restaurant)
   orders: Order[];
+
+  @Field(types => Boolean)
+  @Column({ default: false })
+  isPromoted: boolean;
+
+  @Field(type => Date, { nullable: true })
+  @Column({ nullable: true })
+  promotedUntil: Date;
+
   // @Field(type => Boolean, { nullable: true }) // for graphql, {nullable: don't send, defaultValue: send the default value}, but both are fine with default db column
   // @Column({ default: true }) // for db
   // @IsOptional() // for validator, if value is missing, ignore below validator

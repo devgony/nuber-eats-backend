@@ -1571,3 +1571,62 @@ nest g mo payments
 ```
 
 - Option2. new getPayments resolver (able to do pagination and filter later)
+
+## Task Scheduling
+
+```
+npm i @nestjs/schedule
+```
+
+- Cron job at each scheduled time
+- Interval at each time from now
+- Timeout after the time, runs once
+- by importnig schedulerRegistry, use dynamic methods like stop()
+
+```ts
+...
+    private schedulerRegistry: SchedulerRegistry,
+...
+@Cron(`30 * * * * *`, {
+    name: 'myJob',
+  })
+  checkForPayments() {
+    console.log(`Checking for payment...(cron)`);
+    const job = this.schedulerRegistry.getCronJob('myJob');
+    job.stop();
+  }
+
+  @Interval(5000)
+  checkForPaymentsI() {
+    console.log(`Checking for payment...(interval)`);
+  }
+
+  @Timeout(20000) // after this time runs once
+  afterStarts() {
+    console.log('Congrats!');
+  }
+```
+
+### schedule usage -> check promote or not
+
+- Interval: for test only
+- Cron: Use it at Prod
+- Compare time with where clause
+
+```ts
+      promotedUntil: LessThan(new Date()),
+```
+
+### promote target
+
+- all restaurants
+- category by slug
+
+```ts
+allRestaurants(), findCategoryBySlug()
+...
+  order: {
+    isPromoted: 'DESC';
+  }
+...
+```
