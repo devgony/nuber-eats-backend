@@ -11,7 +11,7 @@ import { Dish } from './dish.entity';
 @ObjectType() // auto gen schema for graphql
 @Entity() // for typeORM
 export class Restaurant extends CoreEntity {
-  @Field(is => String)
+  @Field(type => String)
   @Column()
   @IsString()
   @Length(5)
@@ -31,6 +31,7 @@ export class Restaurant extends CoreEntity {
   @ManyToOne(type => Category, category => category.restaurants, {
     nullable: true,
     onDelete: 'SET NULL',
+    eager: true,
   })
   category: Category;
 
