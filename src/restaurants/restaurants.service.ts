@@ -245,14 +245,14 @@ export class RestaurantService {
           // name: Like(`%${query}%`),
           name: Raw(name => `${name} ILIKE '%${query}%'`),
         },
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * 3,
+        take: 3,
       });
       return {
         ok: true,
         restaurants,
         totalResults,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 3),
       };
     } catch {
       return { ok: false, error: 'Could not search for restaurants' };
