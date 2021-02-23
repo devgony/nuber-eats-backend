@@ -1632,3 +1632,62 @@ allRestaurants(), findCategoryBySlug()
 ```
 
 ### Change port from 3000 to 4000 at main.ts for FrontEnd
+
+## Additional edit
+
+```ts
+> touch src/restaurants/dtos/my-restaurant.dto.ts
+> touch src/restaurants/dtos/my-restaurants.dto.ts
+
+// restaurants.resolver.ts
+@Query(returns => MyRestaurantsOutput)
+  @Role(['Owner'])
+  myRestaurants(@AuthUser() owner: User): Promise<MyRestaurantsOutput> {
+    return this.restaurantService.myRestaurants(owner);
+  }
+
+  @Query(returns => MyrestaurantOutput)
+  @Role(['Owner'])
+  myRestarant(
+    @AuthUser() owner: User,
+    @Args('input') myRestaurantInput: MyRestaurantInput,
+  ): Promise<MyrestaurantOutput> {
+    return this.restaurantService.myRestaurant(owner, myRestaurantInput);
+  }
+
+// restaurants.service.ts
+async myRestaurants(owner: User): Promise<MyRestaurantsOutput> {
+    try {
+      const restaurants = await this.restaurants.find({ owner });
+      return {
+        restaurants,
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Could not find restaurants.',
+      };
+    }
+  }
+
+  async myRestaurant(
+    owner: User,
+    { id }: MyRestaurantInput,
+  ): Promise<MyrestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(
+        { owner, id },
+        { relations: ['menu', 'orders'] },
+      );
+      return {
+        restaurant,
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Cloud not find restaurant',
+      };
+    }
+```

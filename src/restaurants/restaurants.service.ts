@@ -20,6 +20,11 @@ import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './dtos/edit-restaurant.dto';
+import {
+  MyRestaurantInput,
+  MyrestaurantOutput,
+} from './dtos/my-restaurant.dto';
+import { MyRestaurantsOutput } from './dtos/my-restaurants.dto';
 import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
 import { RestaurantsOutput, RestaurantsInput } from './dtos/restaurants.dto';
 import { SearchRestaurantInput } from './dtos/search-restaurant.dto';
@@ -361,6 +366,41 @@ export class RestaurantService {
       return {
         ok: false,
         error: 'Could not delete dish',
+      };
+    }
+  }
+  async myRestaurants(owner: User): Promise<MyRestaurantsOutput> {
+    try {
+      const restaurants = await this.restaurants.find({ owner });
+      return {
+        restaurants,
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Could not find restaurants.',
+      };
+    }
+  }
+
+  async myRestaurant(
+    owner: User,
+    { id }: MyRestaurantInput,
+  ): Promise<MyrestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(
+        { owner, id },
+        { relations: ['menu', 'orders'] },
+      );
+      return {
+        restaurant,
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Cloud not find restaurant',
       };
     }
   }
