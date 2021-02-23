@@ -76,11 +76,6 @@ import { ScheduleModule } from '@nestjs/schedule';
       installSubscriptionHandlers: true,
       context: ({ req, connection }) => {
         const TOKEN_KEY = 'x-jwt';
-        if (req) {
-          console.log(Object.keys(req?.headers[TOKEN_KEY]));
-        } else {
-          connection.context[TOKEN_KEY];
-        }
         return {
           token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY],
         };
