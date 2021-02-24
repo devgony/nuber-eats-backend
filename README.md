@@ -1691,3 +1691,49 @@ async myRestaurants(owner: User): Promise<MyRestaurantsOutput> {
       };
     }
 ```
+
+## Upload image
+
+```ts
+> nest g mo uploads
+> touch src/uploads/uploads.controller.ts
+
+@Controller('uploads')
+export class UploadsController {
+  @Post('')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file) {
+    console.log(file);
+  }
+}
+
+> insomnia
+Multipart => file
+Header => Content-Type, multipart/form-data
+send to localhost:4000/uploads
+```
+
+### use AWS S3
+
+```ts
+npm i aws-sdk
+
+User name
+  nestUpload
+AWS access type
+  Programmatic access - with an access key
+Permissions boundary
+  Permissions boundary is not set
+Managed policy
+  AmazonS3FullAccess
+```
+
+- config.update with accessKeyId, secretAccessKey
+- .putObject => return {url}
+
+### COR Err
+
+```ts
+// main.ts
+app.enableCors();
+```
