@@ -69,7 +69,7 @@ export class RestaurantsResolver {
 
   @Query(returns => MyrestaurantOutput)
   @Role(['Owner'])
-  myRestarant(
+  myRestaurant(
     @AuthUser() owner: User,
     @Args('input') myRestaurantInput: MyRestaurantInput,
   ): Promise<MyrestaurantOutput> {

@@ -1737,3 +1737,18 @@ Managed policy
 // main.ts
 app.enableCors();
 ```
+
+### To fake create restaurant to optmize,
+
+```ts
+// create-restaurant.dto.ts
+@ObjectType()
+export class CreateRestaurantOutput extends CoreOutput {
+  @Field(type => Int)
+  restaurantId?: number;
+}
+// restaurants.service.ts
+  async createRestaurant(
+...
+        restaurantId: newRestaurant.id,
+```
