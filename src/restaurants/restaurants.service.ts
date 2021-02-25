@@ -58,10 +58,11 @@ export class RestaurantService {
       return {
         ok: true,
       };
-    } catch {
+    } catch (e) {
+      console.log(e);
       return {
         ok: false,
-        error: 'Could not creaste restaurant',
+        error: 'Could not create restaurant',
       };
     }
   }
