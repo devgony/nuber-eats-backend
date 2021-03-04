@@ -1782,7 +1782,7 @@ ELIFECYCLE
 
 ```
 heroku config
-heroku config:set NODE_ENV=prod
+heroku config:set NODE_ENV=production
 ```
 
 or go to webpage and set
@@ -1818,6 +1818,7 @@ heroku config:set AWS_SECRET_ACCESS_KEY=
 
 ```ts
 // main.ts
-  await app.listen(process.env.PORT | 4000);
-heroku config:set PORT=4000
+await app.listen(process.env.PORT || 4000);
 ```
+
+- prod to production at `app.module.ts`
