@@ -1755,9 +1755,20 @@ export class CreateRestaurantOutput extends CoreOutput {
 
 ## Deploy
 
+create new app
+devgony-nuber-eats-backend
+
 ```
 brew tap heroku/brew && brew install heroku
 heroku login
 y
-heroku git:remote -a nuber-eats-backend
+heroku git:remote -a devgony-nuber-eats-backend
+git push heroku master
+heroku logs --tail
+
+// touch Procfile
+web: npm run start:prod
+git add .
+git commit -m "Procfile"  // mandatory to commit before deploy
+git push heroku master
 ```
