@@ -1752,3 +1752,12 @@ export class CreateRestaurantOutput extends CoreOutput {
 ...
         restaurantId: newRestaurant.id,
 ```
+
+## Deploy
+
+```
+brew tap heroku/brew && brew install heroku
+heroku login
+y
+heroku git:remote -a nuber-eats-backend
+```
