@@ -1830,3 +1830,38 @@ await app.listen(process.env.PORT || 4000);
 GraphQLModule.forRoot({
   playground: process.env.NODE_ENV !== 'production',
 ```
+
+- Deploy:connect with github => `git push origin master` will trigger both git and heroku
+- DB ENV is dynamic => use URI (DATABASE_URL)
+
+```ts
+// app.module.ts
+TypeOrmModule.forRoot({
+      type: 'postgres',
+      ...(process.env.DATABASE_URL
+        ? { url: process.env.DATABASE_URL }
+        : {
+            host: process.env.DB_HOST,
+            port: +process.env.DB_PORT,
+            username: process.env.DB_USERNAME,
+            password: process.env.DB_PASSWORD, // from local? passsword doesn't matter
+            database: process.env.DB_NAME,
+          }),
+
+// don't need to be required
+DB_HOST: Joi.string(), // .required(),
+DB_PORT: Joi.string(), // .required(),
+DB_USERNAME: Joi.string(), // .required(),
+DB_PASSWORD: Joi.string(), // .required(),
+DB_NAME: Joi.string(), // .required(),
+```
+
+- delete redundant env
+
+```
+heroku config:unset DB_HOST
+heroku config:unset DB_NAME
+heroku config:unset DB_PASSWORD
+heroku config:unset DB_PORT
+heroku config:unset DB_USERNAME
+```
