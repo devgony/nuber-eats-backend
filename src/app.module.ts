@@ -76,6 +76,7 @@ import { UploadsModule } from './uploads/uploads.module';
     GraphQLModule.forRoot({
       // cost first way - auto gen by typescript
       // autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // => create 'schema.sql' file
+      playground: process.env.NODE_ENV !== 'production',
       autoSchemaFile: true, // => create schema in memory only
       installSubscriptionHandlers: true,
       context: ({ req, connection }) => {

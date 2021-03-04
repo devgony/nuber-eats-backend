@@ -1822,3 +1822,11 @@ await app.listen(process.env.PORT || 4000);
 ```
 
 - prod to production at `app.module.ts`
+- SSL error => `heroku config:set PGSSLMODE=no-verify`
+- security issuse for playground
+
+```ts
+// app.module.ts
+GraphQLModule.forRoot({
+  playground: process.env.NODE_ENV !== 'production',
+```
