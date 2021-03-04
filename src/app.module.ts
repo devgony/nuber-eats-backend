@@ -61,10 +61,9 @@ import { UploadsModule } from './uploads/uploads.module';
             password: process.env.DB_PASSWORD, // from local? passsword doesn't matter
             database: process.env.DB_NAME,
           }),
-      synchronize: process.env.NODE_ENV !== 'production', // migrate current state to model
+      synchronize: process.env.NODE_ENV !== 'prod', // migrate current state to model
       logging:
-        process.env.NODE_ENV !== 'production' &&
-        process.env.NODE_ENV !== 'test',
+        process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
       // entities: [Restaurant],
       entities: [
         User,
