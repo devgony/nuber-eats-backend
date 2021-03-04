@@ -1758,6 +1758,8 @@ export class CreateRestaurantOutput extends CoreOutput {
 create new app
 devgony-nuber-eats-backend
 
+### install heroku
+
 ```
 brew tap heroku/brew && brew install heroku
 heroku login
@@ -1766,9 +1768,56 @@ heroku git:remote -a devgony-nuber-eats-backend
 git push heroku master
 heroku logs --tail
 
-// touch Procfile
-web: npm run start:prod
+touch Procfile
+  web: npm run start:prod
 git add .
 git commit -m "Procfile"  // mandatory to commit before deploy
 git push heroku master
+heroku logs --tail
+```
+
+Error: Config validation error: "NODE_ENV" must be one of [dev, prod, test].
+error:
+ELIFECYCLE
+
+```
+heroku config
+heroku config:set NODE_ENV=prod
+```
+
+or go to webpage and set
+
+- Dyno: how heroku talks about app
+  - free Dyno: sleep | hody($7)
+
+### Postgres DB
+
+- Add-ons => Find more add-ons => Heroku Postgres: Hobby Dev => Submit Order Form
+- DB:Settings:Database Credentials => Server:Settings:Config Vars
+
+```
+heroku config:set DB_HOST=
+heroku config:set DB_PORT=
+heroku config:set DB_USERNAME=
+heroku config:set DB_PASSWORD=
+heroku config:set DB_NAME=
+```
+
+- Private KEYS
+
+```
+heroku config:set PRIVATE_KEY=
+heroku config:set MAILGUN_API_KEY=
+heroku config:set MAILGUN_DOMAIN_NAME=
+heroku config:set MAILGUN_FROM_EMAIL=
+heroku config:set AWS_ACCESS_KEY_ID=
+heroku config:set AWS_SECRET_ACCESS_KEY=
+```
+
+- heroku should your port from env
+
+```ts
+// main.ts
+  await app.listen(process.env.PORT | 4000);
+heroku config:set PORT=4000
 ```
