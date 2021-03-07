@@ -1865,3 +1865,12 @@ heroku config:unset DB_PASSWORD
 heroku config:unset DB_PORT
 heroku config:unset DB_USERNAME
 ```
+
+## Error handling
+
+```
+add-restaurants.tsx:48 Uncaught (in promise) TypeError: Cannot read property 'myRestaurants' of null
+    at onCompleted (add-restaurants.tsx:48)
+    at t.onMutationCompleted (MutationData.ts:117)
+    at MutationData.ts:73
+```
