@@ -231,7 +231,7 @@ describe('UserService', () => {
       expect(result).toEqual({ ok: true });
     });
     it('should fail on exception', async () => {
-      usersRepository.findOne.mockResolvedValue(new Error());
+      usersRepository.findOne.mockRejectedValue(new Error());
       const result = await service.editProfile(1, { email: 'ab' });
       expect(result).toEqual({ ok: false, error: 'Could not update profile.' });
     });
@@ -265,7 +265,7 @@ describe('UserService', () => {
       expect(result).toEqual({ error: 'Verification not found', ok: false });
     });
     it('shoud fail on exception', async () => {
-      verificationRepository.findOne.mockResolvedValue(new Error());
+      verificationRepository.findOne.mockRejectedValue(new Error());
       const result = await service.verifyEmail('');
       expect(result).toEqual({ ok: false, error: 'Could not verify email' });
     });
